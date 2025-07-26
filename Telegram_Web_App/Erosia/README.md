@@ -160,4 +160,53 @@ sequenceDiagram
 
 ---
 
-[PlantUML Web Server](https://www.plantuml.com/plantuml/uml/bLN1Jjj04BtxAqOv9L9RxkH2Fw2NgbBF9fYI0d7ac3jE2WK54K4hKLLL41NNIiR49Gea_CBiB_HB-dQoIxOu1KKHZcFFU_FcpUomqehzADxPtlBanlEM-PmdVAkE-0RV6QUgpRd-JNYGyhtgg8H7kCjLc_YA9tYVKdb9u9Kgy2Vw6UaBedSHcG7UatW0ns2zn_TmcVW7Nbvp2k8XZryGzmclKvNWLeku0yUXEgfwNdsTol_N1Gp_1iMTKLNwbxXKeNWZQ81Xm6d58rhcFi0ZjQkw81ACIbIFtjGRTNhTR5BvRU3NK8p4dcakn7QG8rN79XO4eaAJ4BBSK3CArtPgSUlLnrROW6QYHLL_HSYL-3L45eHash09F9GwLATGYQq5E4I1pwd6XN9QdKOl80V4duJXJkIO_e-qgoNBTWgE2SGWWFYIlt4VhVkfAS41j7Jr765dn1UexnT_jz2-CnuW9LqIH8nLL-s96bhrQvj1OmspvJVhIxKeyEFWPHYj1L75abn0u9wGZ95q3Fcv8rEpPYG8qnK3-oB1kGQgVOX7EnDykf2DmPncbp6zrGwfZXP_mkSp3m75tvwkdH0spz9UaKQ6WiWCHj--G9GSgdjG7cXGiSkIztsmkX66ctAoZ2BwitzgVQhE8itfGHkdrhgEoCs8IW_2FcipIYxwqhOTLod9E2kLZM1K-n6f0oxq5OLDP3uFTHun6vTawff-OFmwrhrw5sm57o9_sn86Mws0ojAhTkLHVIQtZ2O47q3Y5THrNCkxbWZ-rDSzhyWeacNm1-xP6JmSnLixMCwHbuejfs4So8gubaXtpLKMNmGFUt3EUNzwlIAdc6ix1avd4HhPqBkm8cSTFoKAWd2JJFT1Xaykqp8iJ07dpowaRBPRdCchFkU26mmImdo3TFxCzMPjDCrinM7JMy4F_4Vy2m00)
+## **🪴PlantUML**
+
+```mermaid
+@startuml
+start
+
+:Пользователь запускает бота (/start);
+:Бот отправляет кнопки: Магазин, О нас, Помощь;
+
+if (Пользователь нажимает "Магазин") then (да)
+  :Открывается Mini App (React);
+  :Загружаются товары из products.json;
+
+  if (Пользователь нажимает "Добавить в корзину") then (да)
+    :Отображается корзина;
+    :Пользователь нажимает "Оформить заказ";
+    :Вводит ФИО, Телефон, ПВЗ СДЭК;
+    :Отправка данных на backend (/api/create-order);
+    :Сохранение заказа в orders.json;
+    :Генерация ссылки на оплату СБП;
+    :Переход пользователя на оплату;
+
+      if (Оплата успешна) then (да)
+        :Webhook от СБП → backend;
+        :Пометка заказа как "оплачен";
+        :Формирование текста заказа;
+        :Отправка сообщения исполнителю в Telegram;
+      else (нет)
+        :Показать ошибку оплаты;
+      endif
+
+  else (нет)
+    :Ожидается добавление товара;
+  endif
+
+else (другие кнопки)
+  if (Пользователь нажимает "О нас") then (да)
+    :Бот отправляет описание магазина;
+  else if (Пользователь нажимает "Помощь") then (да)
+    :Бот просит ввести сообщение;
+    :Пользователь вводит текст;
+    :Бот отправляет текст в чат исполнителя;
+  endif
+endif
+
+stop
+@enduml
+```
+
+![BLN1JJ~1.PNG](BLN1JJ1.png)
