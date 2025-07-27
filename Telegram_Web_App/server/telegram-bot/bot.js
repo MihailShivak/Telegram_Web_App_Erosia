@@ -6,22 +6,5 @@ const bot = new TelegramBot(TELEGRAM_WEB_APP_TOKEN, { polling: true });
 // Обработка команды /start
 bot.onText(/\/start/, (msg) => {
     const chatId = msg.chat.id
-
-    bot.sendMessage(chatId, '/start', {
-        reply_markup:{
-            inline_keyboard: [
-                [
-                    {
-                        text: '🛍️ Магазин',
-                        web_app: { url: WEB_APP_URL }
-                    }
-                ],
-                [
-                    { text: 'ℹ️ О нас', callback_data: 'about' },
-                    { text: '❓ Помощь', callback_data: 'help' }
-                ]
-            ]
-        }
-    });
 });
 
