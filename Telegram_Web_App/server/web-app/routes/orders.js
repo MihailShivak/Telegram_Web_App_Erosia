@@ -59,7 +59,7 @@ router.post('/', async (req, res) => {
             },
             confirmation: {
                 type: 'redirect',
-                return_url: `${process.env.FRONTEND_URL}/thankyou/${newOrder.id}` // после оплаты Юkassa перенаправляет пользователя по адресу return_url
+                return_url: `${process.env.FRONTEND_CHECKOUT_URL}/checkout/${newOrder.id}` // после оплаты Юkassa перенаправляет пользователя по адресу return_url
             },
             capture: true,
             description: `Оплата заказа №${newOrder.id}`,
