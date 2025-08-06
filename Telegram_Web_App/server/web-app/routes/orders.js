@@ -5,7 +5,7 @@ const fs = require('fs-extra');
 const path = require('path');
 const { v4:uuidv4 } = require('uuid');
 const axios = require('axios');
-require('dotenv').config();
+const { } = require('../config.js');
 
 
 // ORDERS PATH
@@ -76,28 +76,35 @@ router.post('/', async (req, res) => {
             .from(`${process.env.YOOKASSA_SHOP_ID}:${process.env.YOOKASSA_SECRET_KEY}`)
             .toString('base64');
 
-        const yooKassaResponse = await axios.post(
-            'https://api.yookassa.ru/v3/payments',
-            paymentPayload,
-            {
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Basic ${auth}`,
-                    'Idempotence-Key': newOrder.id
-                }
-            }
-        );
+        // const yooKassaResponse = await axios.post(
+        //     'https://api.yookassa.ru/v3/payments',
+        //     paymentPayload,
+        //     {
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //             'Authorization': `Basic ${auth}`,
+        //             'Idempotence-Key': newOrder.id
+        //         }
+        //     }
+        // );
+
+        const fakePaymentLink = `https://example.com/pay/${newOrder.id}`;
 
         // генерируем временную ссылку на оплату
-        const paymentLink = yooKassaResponse.data.confirmation.confirmation_url;
+        // const paymentLink = yooKassaResponse.data.confirmation.confirmation_url;
+        const paymentLink = fakePaymentLink;
 
         res.json({
             success: true,
             order: {
-                id: newOrder.id,
+                order_id: newOrder.id,
                 total: total,
+                user_id: newOrder.user_id,
+                username: newOrder.username,
+                name: newOrder.name,
+                phone: newOrder.phone,
+                pickup_point: newOrder.pickup_point,
                 items: newOrder.items,
-                pickup_point: newOrder.pickup_point
             },
             payment: {
                 url: paymentLink,
@@ -107,7 +114,7 @@ router.post('/', async (req, res) => {
         });
 
     } catch (error) {
-        console.error('Ошибка при создании заказа:', error.message);
+        console.error('Ошибка при создании заказа:', error);
         res.status(500).json({error:'Не удалось создать заказ'});
     }
 });

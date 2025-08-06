@@ -1,7 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
-const { TELEGRAM_WEB_APP_TOKEN, EXECUTOR_CHAT_ID, WEB_APP_URL } = require('./config');
+const { TELEGRAM_BOT_TOKEN, EXECUTOR_CHAT_ID, TEST_THREAD_ID, WEB_APP_URL } = require('./config');
 
-const bot = new TelegramBot(TELEGRAM_WEB_APP_TOKEN, { polling: true });
+const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
 
 // userState для обработки состояния пользователя при направлении обращения
 const userState = {}
@@ -127,8 +127,11 @@ bot.on('message', (msg) => {
     const chatId = msg.chat.id;
     const text = msg.text;
 
-    // Взять Chat ID
+    // // Взять Chat ID
     // console.log('Chat ID:', msg.chat.id);
+
+    // // Взять Thread ID
+    // console.log('Thread ID:', msg.message_thread_id);
 
     if(text.startsWith('/')) return;
 
@@ -144,7 +147,9 @@ bot.on('message', (msg) => {
 ${text}
         `;
 
-        bot.sendMessage(EXECUTOR_CHAT_ID, supportMessage.trim());
+        bot.sendMessage(EXECUTOR_CHAT_ID, supportMessage.trim(),{
+            message_thread_id: Number(TEST_THREAD_ID)
+        });
         bot.sendMessage(chatId, `
 ✅ Ваше сообщение отправлено !  
             `);
