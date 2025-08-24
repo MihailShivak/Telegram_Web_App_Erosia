@@ -11,7 +11,9 @@
   "description": "",
   "dependencies": {
     "dotenv": "^17.2.1",
+    "fs": "^0.0.1-security",
     "node-telegram-bot-api": "^0.66.0",
-    "nodemon": "^3.1.10"
+    "nodemon": "^3.1.10",
+    "path": "^0.12.7"
   }
 }

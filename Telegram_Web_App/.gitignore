@@ -1,0 +1,11 @@
+server/web-app/node_modules
+server/web-app/logs
+server/web-app/data
+server/web-app/.env
+
+server/telegram-bot/node_modules
+server/telegram-bot/.env
+
+web/node_modules
+web/.env
+

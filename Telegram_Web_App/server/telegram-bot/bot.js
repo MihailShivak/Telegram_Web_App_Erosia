@@ -1,4 +1,5 @@
 const TelegramBot = require('node-telegram-bot-api');
+const fs = require('fs');
 const { TELEGRAM_BOT_TOKEN, EXECUTOR_CHAT_ID, TEST_THREAD_ID, WEB_APP_URL } = require('./config');
 
 const bot = new TelegramBot(TELEGRAM_BOT_TOKEN, { polling: true });
@@ -56,12 +57,12 @@ bot.onText(/\/help/, (msg) => {
 bot.onText(/\/shop/, (msg) => {
     const chatId = msg.chat.id;
 
-    bot.sendMessage(chatId, 'Открыть магазин', {
+    bot.sendMessage(chatId, '🛍️ Хотите открыть магазин ?', {
         reply_markup:{
             inline_keyboard: [
                 [
                     {
-                        text: '🛍️ Магазин',
+                        text: '🛍️ Открыть магазин',
                         web_app: { url: WEB_APP_URL }
                     }
                 ]
@@ -74,12 +75,12 @@ bot.onText(/\/shop/, (msg) => {
 bot.onText(/\/support/, (msg) => {
     const chatId = msg.chat.id;
 
-    bot.sendMessage(chatId, 'Получить помощь', {
+    bot.sendMessage(chatId, '🆘 Хотите перейти к созданию обращения ?', {
         reply_markup:{
             inline_keyboard: [
                 [
                     {
-                        text: '❓ Помощь',
+                        text: '🆘 Перейти к созданию обращения',
                         callback_data: 'support'
                     }
                 ]
