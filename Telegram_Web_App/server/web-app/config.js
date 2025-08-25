@@ -5,4 +5,5 @@ module.exports = {
     TELEGRAM_BOT_TOKEN: process.env.TELEGRAM_BOT_TOKEN,
     EXECUTOR_CHAT_ID: process.env.EXECUTOR_CHAT_ID,
     TEST_THREAD_ID:process.env.TEST_THREAD_ID,
+    NODE_ENV:process.env.NODE_ENV
 };

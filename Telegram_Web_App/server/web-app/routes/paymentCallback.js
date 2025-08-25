@@ -10,7 +10,10 @@ const {
   EXECUTOR_CHAT_ID, 
   TEST_THREAD_ID, 
   WEBHOOK_SECRET, 
-  YOOKASSA_SECRET_KEY 
+  YOOKASSA_SECRET_KEY,
+
+  // ---ЗАГЛУШКА: в тестовом режиме пропускаем проверку---
+  NODE_ENV
 } = require('../config.js');
 
 const ORDERS_JSON = path.join(__dirname, '../data/orders.json');
@@ -18,6 +21,13 @@ const LOG_FILE = path.join(__dirname, '../logs/webhooks.log');
 
 // --- Проверка подписи ЮKassa ---
 function verifyYookassaSignature(body, signature, secret) {
+
+  // ---ЗАГЛУШКА: в тестовом режиме пропускаем проверку---
+  if (NODE_ENV === 'test' || NODE_ENV === 'development') {
+    console.log('⚠️  Тестовый режим: пропущена проверка подписи ЮKassa');
+    return true;
+  }
+
   if (!signature) return false;
   const payload = JSON.stringify(body);
   const hmac = crypto
@@ -41,9 +51,15 @@ router.post('/', async (req, res) => {
     const event = webhookData?.event;
 
     // --- Проверка кастомного секрета ---
-    const webhookSecret = req.headers['x-webhook-secret'];
-    if (!webhookSecret || webhookSecret !== WEBHOOK_SECRET) {
-      return res.status(403).json({ error: 'Недействительный секретный ключ' });
+
+    // ---ЗАГЛУШКА: в тестовом режиме пропускаем проверку---
+    if(NODE_ENV !== 'test' && NODE_ENV !== 'development'){
+      const webhookSecret = req.headers['x-webhook-secret'];
+      if (!webhookSecret || webhookSecret !== WEBHOOK_SECRET) {
+        return res.status(403).json({ error: 'Недействительный секретный ключ' });
+      }
+    } else{
+      console.log('⚠️  Тестовый режим: пропущена проверка webhook секрета');
     }
 
     // --- Проверка подписи ЮKassa ---
@@ -122,11 +138,15 @@ router.post('/', async (req, res) => {
     const order = orders[index];
 
     // --- Проверка суммы ---
-    const webhookAmount = parseFloat(payment.amount?.value || '0');
-    const orderTotal = Number(order.total) || 0;
-    if (webhookAmount > 0 && orderTotal > 0 && Math.abs(webhookAmount - orderTotal) > 0.01) {
-      console.error(`❌ Несовпадение суммы: webhook=${webhookAmount} vs order=${orderTotal} (order_id=${orderId})`);
-      return res.status(400).json({ error: 'Сумма оплаты не совпадает с суммой заказа' });
+
+    // --- ЗАГЛУШКА: в тестовом режиме пропускаем проверку суммы ---
+    if(NODE_ENV !== 'test' && NODE_ENV !== 'development'){
+      const webhookAmount = parseFloat(payment.amount?.value || '0');
+      const orderTotal = Number(order.total) || 0;
+      if (webhookAmount > 0 && orderTotal > 0 && Math.abs(webhookAmount - orderTotal) > 0.01) {
+        console.error(`❌ Несовпадение суммы: webhook=${webhookAmount} vs order=${orderTotal} (order_id=${orderId})`);
+        return res.status(400).json({ error: 'Сумма оплаты не совпадает с суммой заказа' });
+      }
     }
 
     // --- Идемпотентность ---
@@ -175,6 +195,51 @@ ${customerItems || '—'}
   } catch (error) {
     console.error('Ошибка в payment-callback:', error);
     res.status(500).json({ error: 'Ошибка сервера' });
+  }
+});
+
+// --- Тестовый endpoint для симуляции webhook ---
+router.post('/test-webhook', async (req, res) => {
+  if (NODE_ENV !== 'test' && NODE_ENV !== 'development') {
+    return res.status(403).json({ error: 'Доступно только в тестовом режиме' });
+  }
+
+  try {
+    const { order_id, amount = 1000 } = req.body;
+    
+    const testWebhookData = {
+      event: 'payment.succeeded',
+      object: {
+        id: 'test_payment_' + Date.now(),
+        status: 'succeeded',
+        amount: {
+          value: amount,
+          currency: 'RUB'
+        },
+        metadata: {
+          order_id: order_id,
+          username: 'test_user',
+          name: 'Тестовый Пользователь',
+          phone: '+79999999999',
+          pickup_point: 'TEST_123',
+          items: JSON.stringify([{ name: 'Тестовый товар', price: 500, qty: 2 }])
+        },
+        created_at: new Date().toISOString()
+      }
+    };
+
+    // Имитируем вызов основного обработчика
+    req.body = testWebhookData;
+    req.headers = {
+      'x-webhook-secret': WEBHOOK_SECRET,
+      'authorization': 'test_signature'
+    };
+
+    await router.handle(req, res);
+    
+  } catch (error) {
+    console.error('Ошибка в тестовом webhook:', error);
+    res.status(500).json({ error: 'Тестовая ошибка' });
   }
 });
 
